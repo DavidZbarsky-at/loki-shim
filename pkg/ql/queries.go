@@ -14,11 +14,11 @@ func SelectLogsQuery(expr syntax.LogSelectorExpr, start time.Time, end time.Time
 	sb := &selectBuilder{sqlbuilder.ClickHouse.NewSelectBuilder()}
 	sb.Select("*").From(FilebeatTable)
 
-	sb.Where(fmt.Sprintf("`@timestamp` >= fromUnixTimestamp64Milli(%d)", start.UnixMilli()))
-	sb.Where(fmt.Sprintf("`@timestamp` <= fromUnixTimestamp64Milli(%d)", end.UnixMilli()))
+	sb.Where(fmt.Sprintf("`Timestamp` >= fromUnixTimestamp64Milli(%d)", start.UnixMilli()))
+	sb.Where(fmt.Sprintf("`Timestamp` <= fromUnixTimestamp64Milli(%d)", end.UnixMilli()))
 	sb.Limit(int(limit))
 
-	orderBy := "`@timestamp`"
+	orderBy := "`Timestamp`"
 	switch direction {
 	case logproto.BACKWARD:
 		orderBy += " DESC"
@@ -38,15 +38,15 @@ func LabelQuery(name string, values bool, start *time.Time, end *time.Time) (str
 	sb.From(FilebeatTable).Distinct()
 
 	if values {
-		sb.Select(fmt.Sprintf("arrayElement(`labels`, %s)", sb.Args.Add(name)))
+		sb.Select(fmt.Sprintf("arrayElement(`LogAttributes`, %s)", sb.Args.Add(name)))
 	} else {
-		sb.Select("arrayJoin(mapKeys(`labels`))")
+		sb.Select("arrayJoin(mapKeys(`LogAttributes`))")
 	}
 	if start != nil {
-		sb.Where(fmt.Sprintf("`@timestamp` >= fromUnixTimestamp64Milli(%d)", start.UnixMilli()))
+		sb.Where(fmt.Sprintf("`Timestamp` >= fromUnixTimestamp64Milli(%d)", start.UnixMilli()))
 	}
 	if end != nil {
-		sb.Where(fmt.Sprintf("`@timestamp` <= fromUnixTimestamp64Milli(%d)", end.UnixMilli()))
+		sb.Where(fmt.Sprintf("`Timestamp` <= fromUnixTimestamp64Milli(%d)", end.UnixMilli()))
 	}
 
 	return sb.Build()
@@ -56,9 +56,9 @@ func SeriesQuery(groups [][]*labels.Matcher, start time.Time, end time.Time) (st
 	sb := &selectBuilder{sqlbuilder.ClickHouse.NewSelectBuilder()}
 	sb.From(FilebeatTable).Distinct()
 
-	sb.Select("`labels`")
-	sb.Where(fmt.Sprintf("`@timestamp` >= fromUnixTimestamp64Milli(%d)", start.UnixMilli()))
-	sb.Where(fmt.Sprintf("`@timestamp` <= fromUnixTimestamp64Milli(%d)", end.UnixMilli()))
+	sb.Select("`LogAttributes`")
+	sb.Where(fmt.Sprintf("`Timestamp` >= fromUnixTimestamp64Milli(%d)", start.UnixMilli()))
+	sb.Where(fmt.Sprintf("`Timestamp` <= fromUnixTimestamp64Milli(%d)", end.UnixMilli()))
 
 	l := &logQLTransformer{sb}
 

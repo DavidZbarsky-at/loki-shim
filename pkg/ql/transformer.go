@@ -8,9 +8,9 @@ import (
 	"github.com/prometheus/prometheus/model/labels"
 )
 
-const LogMessageColumn = "message"
-const LogLabelsColumn = "labels"
-const FilebeatTable = "filebeat"
+const LogMessageColumn = "Body"
+const LogLabelsColumn = "LogAttributes"
+const FilebeatTable = "airtable_logs"
 
 type logQLTransformer struct {
 	*selectBuilder

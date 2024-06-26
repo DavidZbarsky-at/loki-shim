@@ -17,13 +17,15 @@ import (
 	chquerier "github.com/monogon-dev/vortex/pkg/querier"
 )
 
+var clickhousePort = "53479"
+
 func main() {
 	logger := kitlog.NewLogfmtLogger(os.Stderr)
 	log.SetOutput(kitlog.NewStdlibAdapter(logger))
 
 	conn := clickhouse.OpenDB(&clickhouse.Options{
 		Protocol: clickhouse.HTTP,
-		Addr:     []string{"127.0.0.1:8123"},
+		Addr:     []string{"127.0.0.1:" + clickhousePort},
 		Auth: clickhouse.Auth{
 			Database: "default",
 			Username: "default",
@@ -77,5 +79,5 @@ func main() {
 	})
 
 	log.Println("Started")
-	log.Fatal(http.ListenAndServe(":3100", router))
+	log.Fatal(http.ListenAndServe("127.0.0.1:3100", router))
 }
